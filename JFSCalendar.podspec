@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "JFSCalendar"
-  s.version          = "2.7.9"
+  s.version          = "1.0.0"
   s.summary          = "A superiorly awesome iOS7+ calendar control, compatible with Objective-C and Swift."
   
   s.homepage         = "https://github.com/jassby-sam/JFSCalendar"
