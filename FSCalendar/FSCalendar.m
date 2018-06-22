@@ -361,7 +361,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             _collectionView.frame = _daysContainer.bounds;
             
         }
-        _collectionView.fs_height = FSCalendarHalfFloor(_collectionView.fs_height);
+
         _topBorder.frame = CGRectMake(0, -1, self.fs_width, 1);
         _bottomBorder.frame = CGRectMake(0, self.fs_height, self.fs_width, 1);
         _scopeHandle.fs_bottom = _bottomBorder.fs_top;
@@ -993,19 +993,26 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         CGFloat headerHeight = self.preferredHeaderHeight;
         CGFloat weekdayHeight = self.preferredWeekdayHeight;
         CGFloat contentHeight = self.transitionCoordinator.cachedMonthSize.height-headerHeight-weekdayHeight-_scopeHandle.fs_height;
-        CGFloat padding = 5;
-        if (!self.floatingMode) {
-            _preferredRowHeight = (contentHeight-padding*2)/6.0;
-        } else {
-            _preferredRowHeight = _rowHeight;
+        if (self.monthMode) {
+            _preferredRowHeight = (contentHeight-5*2)/6.0;
         }
+        
+        if (self.weekMode) {
+            _preferredRowHeight = (contentHeight-5*2);
+        }
+        
     }
     return _preferredRowHeight;
 }
 
-- (BOOL)floatingMode
+- (BOOL)monthMode
 {
-    return _scope == FSCalendarScopeMonth && _scrollEnabled && !_pagingEnabled;
+    return _scope == FSCalendarScopeMonth && _scrollEnabled && _pagingEnabled;
+}
+
+- (BOOL)weekMode
+{
+    return _scope == FSCalendarScopeWeek && _scrollEnabled && _pagingEnabled;
 }
 
 - (void)setShowsScopeHandle:(BOOL)showsScopeHandle
@@ -1072,8 +1079,12 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _needsRequestingBoundingDates = YES;
     if ([self requestBoundingDatesIfNecessary] || !self.collectionView.indexPathsForVisibleItems.count) {
         [self invalidateHeaders];
+        [self.collectionView reloadData];
+    } else {
+        [UIView performWithoutAnimation:^{
+            [self.collectionView reloadItemsAtIndexPaths:self.collectionView.indexPathsForVisibleItems];
+        }];
     }
-    [self.collectionView reloadData];
 }
 
 - (void)setScope:(FSCalendarScope)scope animated:(BOOL)animated
